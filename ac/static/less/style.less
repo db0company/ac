@@ -18,5 +18,35 @@ body {
 /******************************************/
 /* Single pages */
 
+/* Profile */
+
+.panel-heading.default-account {
+    overflow: hidden;
+    .panel-heading-inside {
+        display: table;
+        width: 100%;
+    }
+    .row {
+        display: table-row;
+    }
+    .col-md-10, .col-md-2 {
+        display: table-cell;
+        width: auto;
+        float: none;
+    }
+    h3 {
+        display: block;
+        width: auto;
+    }
+}
+
 /******************************************/
 /* MagiCollections */
+
+/* Account */
+
+#id_photo + .cuteform .cuteform-elt:not([data-cuteform-val=""]) {
+    width: auto;
+    height: 80px;
+    border-radius: 4px;
+}

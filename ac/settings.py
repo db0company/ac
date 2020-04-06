@@ -40,12 +40,16 @@ GAME_URL = 'https://www.nintendo.com/games/detail/animal-crossing-new-horizons-s
 GITHUB_REPOSITORY = ('db0company', 'ac')
 
 ACTIVITY_TAGS = DEFAULT_ACTIVITY_TAGS + [
+    ('tips', 'Tips&Tricks'),
     ('photo', 'Photo'),
     ('download-design', 'Design to download'),
     ('outfit', 'Outfit'),
     ('craft', 'Craft'),
+    ('neighboors', 'Neighboors'),
+    ('home-design', 'Home design'),
+    ('outdoor-design', 'Outdoor design'),
 ]
-MINIMUM_LIKES_POPULAR = 3
+MINIMUM_LIKES_POPULAR = 0
 
 BACKGROUNDS = [
     {

@@ -11,6 +11,7 @@ from magi.magicollections import (
     StaffConfigurationCollection as _StaffConfigurationCollection,
 )
 from magi.utils import (
+    CuteFormType,
     justReturn,
 )
 from magi.forms import get_account_simple_form
@@ -49,9 +50,6 @@ class UserCollection(_UserCollection):
     navbar_link = True
     icon = 'users'
 
-    class ListView(_UserCollection.ListView):
-        pass
-
 ############################################################
 # Account Collection
 
@@ -68,7 +66,30 @@ class AccountCollection(_AccountCollection):
         'native_fruit': 'food-like',
         'title': 'hashtag',
         'message': 'author',
+        'island_map': 'map',
+        'character_photo': 'profile',
+        'best_friend': 'heart',
     })
+
+    filter_cuteform = _AccountCollection.filter_cuteform
+    filter_cuteform.update({
+        'default_tab': {
+            'type': CuteFormType.HTML,
+        },
+        'i_native_fruit': {
+            'type': CuteFormType.HTML,
+        },
+        'best_friend': {
+            'to_cuteform': lambda _k, _v: _v.image_url,
+        },
+        'photo': {
+            'to_cuteform': lambda _k, _v: _v.image_url,
+        },
+    })
+
+    class ItemView(_AccountCollection.ItemView):
+        fields_preselected = ['photo', 'best_friend']
+        fields_exclude = ['photo']
 
     class ListView(_AccountCollection.ListView):
         def get_page_title(self):
@@ -86,6 +107,10 @@ def to_AddedVillagerCollection(cls):
     class _AddedVillagerCollection(cls):
         add_sentence = 'Add villager to island'
         plural_title = 'Villagers'
+
+        fields_icons = {
+            'villager': 'chibi',
+        }
 
         class AddView(cls.AddView):
             quick_add_to_collection = justReturn(True)
@@ -110,6 +135,12 @@ class VillagerCollection(MainItemCollection):
 
     navbar_link_title = 'Villagers list (quick add)'
     navbar_link_list = 'you'
+
+    filter_cuteform = {
+        'i_gender': {
+            'type': CuteFormType.HTML,
+        }
+    }
 
     def collectible_to_class(self, model_class):
         return to_AddedVillagerCollection(super(VillagerCollection, self).collectible_to_class(model_class))
