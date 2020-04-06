@@ -98,7 +98,6 @@ def to_AddedVillagerCollection(cls):
 
 class VillagerCollection(MainItemCollection):
     queryset = models.Villager.objects.all()
-    navbar_link = False
     icon = 'chibi'
     collectible = models.AddedVillager
 
@@ -108,6 +107,9 @@ class VillagerCollection(MainItemCollection):
         'gender': 'idolized',
         'personality': 'about',
     }
+
+    navbar_link_title = 'Villagers list (quick add)'
+    navbar_link_list = 'you'
 
     def collectible_to_class(self, model_class):
         return to_AddedVillagerCollection(super(VillagerCollection, self).collectible_to_class(model_class))

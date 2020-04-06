@@ -4,6 +4,7 @@ from django.conf import settings as django_settings
 from magi.default_settings import (
     DEFAULT_ACTIVITY_TAGS,
     DEFAULT_ENABLED_PAGES,
+    DEFAULT_ENABLED_NAVBAR_LISTS,
 )
 from ac import models
 
@@ -11,19 +12,21 @@ from ac import models
 
 SITE_NAME = 'AC'
 SITE_DESCRIPTION = 'Make friends on Animal Crossing: New Horizons!'
-SITE_URL = 'http://ac.db0.company/'
+SITE_URL = 'https://ac.db0.company/'
 SITE_IMAGE = 'ac.png'
 SITE_LOGO_WHEN_LOGGED_IN = 'ac_mini_logo.png'
 SITE_NAV_LOGO = 'ac_mini_logo.png'
 SITE_STATIC_URL = '//i-ac.db0.company/'
 GAME_NAME = 'Animal Crossing: New Horizons'
 DISQUS_SHORTNAME = 'ac-db0'
+TWITTER_HANDLE = 'magicircles2'
 GOOGLE_ANALYTICS = 'UA-96550529-2'
 ACCOUNT_MODEL = models.Account
 SHOW_TOTAL_ACCOUNTS = False
 COLOR = '#03A179'
 SECONDARY_COLOR = '#81D5EF'
 ACCENT_COLOR = '#FFE34C'
+FEEDBACK_FORM = 'https://forms.gle/QgEBXXSVfh8K2fSn9'
 
 HASHTAGS = ['AnimalCrossing', 'ACNH']
 
@@ -69,6 +72,7 @@ BACKGROUNDS = [
 
 DONATE_IMAGE = 'donate.png'
 ABOUT_PHOTO = 'deby.png'
+CORNER_POPUP_IMAGE = 'tom_nook.png'
 
 FAVORITE_CHARACTERS_MODEL = models.Villager
 
@@ -84,6 +88,10 @@ FIRST_COLLECTION = 'addedvillager'
 
 ENABLED_PAGES = DEFAULT_ENABLED_PAGES
 
-DEFAULT_ENABLED_PAGES['login']['navbar_link_list'] = None
-DEFAULT_ENABLED_PAGES['signup']['navbar_link_list'] = None
-DEFAULT_ENABLED_PAGES['user']['navbar_link_list'] = None
+ENABLED_PAGES['login']['navbar_link_list'] = None
+ENABLED_PAGES['signup']['navbar_link_list'] = None
+ENABLED_PAGES['user']['navbar_link_list'] = None
+
+ENABLED_NAVBAR_LISTS = DEFAULT_ENABLED_NAVBAR_LISTS
+ENABLED_NAVBAR_LISTS['you']['icon'] = 'settings'
+ENABLED_NAVBAR_LISTS['you']['title'] = ''
