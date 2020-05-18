@@ -9,4 +9,5 @@ def generate_settings():
         'SPECIES_CHOICES': sorted(list(
             models.Villager.objects.order_by('species').values_list(
                 'species', flat=True).distinct())),
+        # todo colors and styles
     })

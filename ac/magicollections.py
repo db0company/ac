@@ -54,8 +54,8 @@ class UserCollection(_UserCollection):
 # Account Collection
 
 class AccountCollection(_AccountCollection):
-    title = _('Island')
-    plural_title = _('Islands')
+    title = _('Character')
+    plural_title = _('Characters')
     navbar_link = False
     form_class = forms.AccountForm
 
@@ -93,7 +93,7 @@ class AccountCollection(_AccountCollection):
 
     class ListView(_AccountCollection.ListView):
         def get_page_title(self):
-            return _('Islands')
+            return _('Characters')
 
     class AddView(_AccountCollection.AddView):
         simpler_form = get_account_simple_form(forms.AccountForm, simple_fields=[
@@ -148,3 +148,7 @@ class VillagerCollection(MainItemCollection):
     class ListView(MainItemCollection.ListView):
         filter_form = forms.VillagerFilterForm
         show_items_names = True
+
+    class ItemView(MainItemCollection.ItemView):
+        fields_preselected = ['music', 'wallpaper', 'floor']
+        fields_prefetched_together = ['furnitures']

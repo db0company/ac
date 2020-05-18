@@ -1,7 +1,10 @@
+import operator
+from collections import OrderedDict
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 from django.db import models
+from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from magi.abstract_models import BaseAccount
 from magi.item_model import (
@@ -18,7 +21,7 @@ from magi.utils import (
 )
 
 ############################################################
-# Account (= island)
+# Account (= character)
 
 class Account(BaseAccount):
     character_name = models.CharField(_('Character name'), max_length=100)
@@ -81,6 +84,78 @@ class Account(BaseAccount):
         return u'{} by {}'.format(self.name, self.character_name)
 
 ############################################################
+# Item
+# # todo
+#         ('virtual', [
+#             'Achievements',
+#             'Reactions',
+#         ]),
+
+class Item(MagiModel):
+    collection_name = 'item'
+
+    owner = models.ForeignKey(User, related_name='added_items')
+
+    name = models.CharField(_('Name'), max_length=100, db_index=True)
+
+    CATEGORIES = OrderedDict([
+        (('furnitures', _('Furnitures')), [
+            ('Housewares', _('Housewares')),
+            ('Miscellaneous', _('Miscellaneous')),
+            ('Wall-mounted', _('Wall-mounted')),
+            ('Wallpaper', _('Wallpapers')),
+            ('Floors', _('Floors')),
+            ('Rugs', _('Rugs')),
+            ('Photos', _('Photos')),
+            ('Posters', _('Posters')),
+            ('Tools', _('Tools')),
+            ('Tools', _('Tools')),
+            ('Fencing', _('Fencing')),
+        ]),
+        (('clothes', _('Clothes')), [
+            ('Tops', _('Tops')),
+            ('Bottoms', _('Bottoms')),
+            ('Dress-Up', _('Dress-Up')),
+            ('Headwear', _('Headwear')),
+            ('Accessories', _('Accessories')),
+            ('Socks', _('Socks')),
+            ('Shoes', _('Shoes')),
+            ('Bags', _('Bags')),
+            ('Umbrellas', _('Umbrellas')),
+        ]),
+        (('critters', _('Critters')), [
+            ('Insects', _('Insects')),
+            ('Fish', _('Fish')),
+        ]),
+        (('other', _('Other')), [
+            ('Music', _('Music')),
+            ('Recipes', _('Recipes')),
+            ('Fossils', _('Fossils')),
+            ('Art', _('Art')),
+            ('Other', _('Other')),
+            ('Construction', _('Construction')),
+        ]),
+    ])
+    TYPE_CHOICES = reduce(operator.add, CATEGORIES.values())
+    i_type = models.PositiveIntegerField(_('Type'), choices=i_choices(TYPE_CHOICES), null=True)
+
+    # todo check
+    IN_VILLAGER_HOUSE_TYPES = [
+        'Housewares',
+        'Miscellaneous',
+        'Wall-mounted',
+        'Rugs',
+        'Photos',
+        'Posters',
+        'Tools',
+    ]
+
+    ############################################################
+    # Internal fields
+
+    internal_id = models.TextField(null=True, unique=True)
+
+############################################################
 # Villager
 
 class Villager(MagiModel):
@@ -88,7 +163,15 @@ class Villager(MagiModel):
 
     owner = models.ForeignKey(User, related_name='added_villagers')
 
+    ############################################################
+    # Images
+
     image = models.ImageField(_('Image'), upload_to=uploadItem('villager'), null=True)
+    icon_image = models.ImageField(_('Icon'), upload_to=uploadItem('villager'), null=True)
+    house_image = models.ImageField(_('House'), upload_to=uploadItem('villager'), null=True)
+
+    ############################################################
+    # Main fields
 
     name = models.CharField(_('Name'), max_length=100, unique=True, db_index=True)
 
@@ -102,9 +185,63 @@ class Villager(MagiModel):
     i_gender = models.PositiveIntegerField(_('Gender'), choices=i_choices(GENDER_CHOICES), default=2)
 
     personality = models.CharField(_('Personality'), max_length=100, null=True)
+    hobby = models.CharField(_('Hobby'), max_length=100, null=True)
+    catchphrase = models.CharField(_('Catchphrase'), max_length=100, null=True)
+
+    birthday = models.DateField(_('Birthday'), null=True)
+    display_birthday = property(lambda _s: date_format(_s.birthday, format='MONTH_DAY_FORMAT', use_l10n=True))
+
+    _to_style_verbose_name = lambda _s, _i=None: (u'{} ({})' if _i else u'{}').format(
+        _('Favorite {thing}').format(thing=_('Style').lower()), _i)
+    style1 = models.CharField(_to_style_verbose_name(1), null=True, max_length=100)
+    style2 = models.CharField(_to_style_verbose_name(2), null=True, max_length=100)
+
+    _to_color_verbose_name = lambda _s, _i=None: (u'{} ({})' if _i else u'{}').format(
+        _('Favorite {thing}').format(thing=_('Color').lower()), _i)
+    color1 = models.CharField(_to_color_verbose_name(1), null=True, max_length=100)
+    color2 = models.CharField(_to_color_verbose_name(2), null=True, max_length=100)
+
+    music = models.ForeignKey(Item, null=True, verbose_name=_('Song'), limit_choices_to={
+        'i_type': Item.get_i('type', 'Music'),
+    }, related_name='villagers_with_song')
+
+    ############################################################
+    # House details
+
+    wallpaper = models.ForeignKey(Item, null=True, verbose_name=_('Wallpaper'), limit_choices_to={
+        'i_type': Item.get_i('type', 'Wallpaper'),
+    }, related_name='villagers_with_wallpaper')
+    floor = models.ForeignKey(Item, null=True, verbose_name=_('Floor'), limit_choices_to={
+        'i_type': Item.get_i('type', 'Floors'),
+    }, related_name='villagers_with_floor')
+
+    furnitures = models.ManyToManyField(Item, null=True, verbose_name=_('Furnitures'), limit_choices_to={
+        'i_type__in': [
+            Item.get_i('type', _type)
+            for _type in Item.IN_VILLAGER_HOUSE_TYPES
+        ],
+    })
+
+    ############################################################
+    # Internal fields
+
+    unique_entry_id = models.TextField(null=True, unique=True)
+    filename = models.TextField(null=True)
+
+    ############################################################
+    # Views utils
+
+    image_for_favorite_character = property(lambda _s: _s.icon_image_url)
+    image_for_prefetched = property(lambda _s: _s.icon_image_url)
+
+    ############################################################
+    # Unicode
 
     def __unicode__(self):
         return self.name
+
+    ############################################################
+    # Meta
 
     class Meta:
         ordering = ['name']
@@ -120,7 +257,7 @@ class AddedVillager(AccountAsOwnerModel):
 
     @property
     def image(self):
-        return self.villager.image
+        return self.villager.icon_image
 
     def __unicode__(self):
         return unicode(self.villager)
